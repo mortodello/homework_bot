@@ -44,7 +44,7 @@ def check_tokens():
         (PRACTICUM_TOKEN, 'PRACTICUM_TOKEN'),
         (TELEGRAM_TOKEN, 'TELEGRAM_TOKEN'),
         (TELEGRAM_CHAT_ID, 'TELEGRAM_CHAT_ID'),
-        ]
+    ]
 
     for value, name in REQUIRED_DATA:
         if not value:
