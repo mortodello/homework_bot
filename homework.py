@@ -10,7 +10,6 @@ import requests
 import telegram
 from dotenv import load_dotenv
 
-import config
 import exceptions
 
 load_dotenv()
@@ -37,7 +36,6 @@ handler.setFormatter(formatter)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(handler)
-current_date = 0
 
 
 def check_tokens():
@@ -53,7 +51,7 @@ def check_tokens():
             logger.critical(f'Отсутствует обязательная переменная окружения: '
                             f'{name}.'
                             'Программа принудительно остановлена.')
-            raise exceptions.NoData(
+            raise exceptions.EnviromentVariablesError(
                 f'Отсутствует обязательная переменная окружения: '
                 f'{name}.'
                 'Программа принудительно остановлена.'
@@ -85,10 +83,7 @@ def get_api_answer(timestamp):
             f'Эндпоинт {ENDPOINT} недоступен. '
             f'Код ответа API: {response.status_code}'
         )
-    else:
-        global current_date
-        current_date = response.json()['current_date']
-        return response.json()
+    return response.json()
 
 
 def check_response(response):
@@ -113,12 +108,13 @@ def parse_status(homework):
     if 'status' not in homework:
         logger.error('Значения по ключу status не найдено')
         raise KeyError('Значения по ключу status не найдено')
-    if homework['status'] not in HOMEWORK_VERDICTS:
+    homework_status = homework['status']
+    if homework_status not in HOMEWORK_VERDICTS:
         logger.error('Статус домашней работы не соответствует документации')
         raise exceptions.StatusError(
             'Статус домашней работы не соответствует документации'
         )
-    verdict = config.HOMEWORK_VERDICTS[homework['status']]
+    verdict = HOMEWORK_VERDICTS[homework_status]
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
@@ -131,12 +127,15 @@ def main():
     status_before = ''
     # пременная-флаг, указывает отправлено ли сообщение об ошибке
     message_have_sent = False
+    current_date = 0
 
     while True:
         try:
+            print(current_date)
             if current_date != 0:
                 timestamp = current_date
             response = get_api_answer(timestamp)
+            current_date = response.get('current_date', timestamp)
             check_response(response)
             homework = response['homeworks'][0]
             message = parse_status(homework)

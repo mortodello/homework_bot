@@ -1,8 +1,8 @@
 """Дополнительные исключения."""
 
 
-class NoData(Exception):
-    """Исключение отсутсвия данных."""
+class EnviromentVariablesError(Exception):
+    """Исключение отсутсвия переменных окружения."""
 
     def __init__(self, text):
         """Текст исключения."""
