@@ -127,15 +127,11 @@ def main():
     status_before = ''
     # пременная-флаг, указывает отправлено ли сообщение об ошибке
     message_have_sent = False
-    current_date = 0
 
     while True:
         try:
-            print(current_date)
-            if current_date != 0:
-                timestamp = current_date
             response = get_api_answer(timestamp)
-            current_date = response.get('current_date', timestamp)
+            timestamp = response.get('current_date', timestamp)
             check_response(response)
             homework = response['homeworks'][0]
             message = parse_status(homework)
